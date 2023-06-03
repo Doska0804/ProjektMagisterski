@@ -3,9 +3,8 @@
 #include <assimp/scene.h>
 
 #include "SceneObject.h"
-class Loader
-{
-	static SceneObject* LoadScene(char* path);
-	static void LoadObject(aiNode* node, const aiScene* scene, SceneObject* parent);
-};
+
+SceneObject* LoadScene(const char* path);
+void LoadObject(aiNode* node, const aiScene* scene, SceneObject* parent);
+
 

@@ -3,7 +3,7 @@
 void SceneObject::Draw()
 {
 	if (objectMesh)
-		objectMesh->Draw();
+		objectMesh->Draw(&worldMatrix);
 
 	for (int i = 0; i < children.size(); i++)
 	{

@@ -16,6 +16,39 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="baseVertexShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="baseFragmentShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="baseShadowFragmentShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="baseShadowVertexShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="quadVertex.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="quadFragment.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="varianceShadowFragmentShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="exponentialShadowFragmentShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="varianceComputeShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="exponentialComputeShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="varianceFragmentShader.glsl">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -27,12 +60,60 @@
     <ClCompile Include="SceneObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="Loader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectMesh.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeCamera.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="RotatingCamera.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="VarianceComputeShader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="VarianceShader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="SceneObject.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectMesh.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeCamera.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingCamera.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="VarianceComputeShader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="VarianceShader.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>

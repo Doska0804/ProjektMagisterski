@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Scene.h"
+
 ObjectMesh::ObjectMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
 {
 	this->vertices = vertices;
@@ -14,10 +16,12 @@ ObjectMesh::ObjectMesh(std::vector<Vertex> vertices, std::vector<unsigned int> i
 void ObjectMesh::Initialize()
 {
     glGenVertexArrays(1, &VAO);
+
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
@@ -34,9 +38,10 @@ void ObjectMesh::Initialize()
     glBindVertexArray(0);
 }
 
-void ObjectMesh::Draw()
+void ObjectMesh::Draw(glm::mat4* worldMatrix)
 {
     glBindVertexArray(VAO);
+    Scene::scene->vShader->setMatrix("model", worldMatrix);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

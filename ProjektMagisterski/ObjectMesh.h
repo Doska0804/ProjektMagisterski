@@ -21,6 +21,6 @@ private:
 public:
 	ObjectMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 	void Initialize();
-	void Draw();
+	void Draw(glm::mat4* worldMatrix);
 };
 

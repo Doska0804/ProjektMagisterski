@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-SceneObject* Loader::LoadScene(char* path)
+SceneObject* LoadScene(const char* path)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
@@ -14,7 +14,7 @@ SceneObject* Loader::LoadScene(char* path)
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         std::cout << "LoadingError: " << importer.GetErrorString() << std::endl;
-        return;
+        return nullptr;
     }
     SceneObject* loadedObject = new SceneObject();
 
@@ -22,7 +22,7 @@ SceneObject* Loader::LoadScene(char* path)
     return loadedObject;
 }
 
-void Loader::LoadObject(aiNode* node, const aiScene* scene, SceneObject* parent)
+void LoadObject(aiNode* node, const aiScene* scene, SceneObject* parent)
 {
     SceneObject* child = new SceneObject();
     parent->AppendChild(child);
@@ -52,15 +52,13 @@ void Loader::LoadObject(aiNode* node, const aiScene* scene, SceneObject* parent)
                 vector.z = mesh->mNormals[i].z;
                 vertex.norm = vector;
             }
-
             vertices.push_back(vertex);
-
-            for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-            {
-                aiFace face = mesh->mFaces[i];
-                for (unsigned int j = 0; j < face.mNumIndices; j++)
-                    indices.push_back(face.mIndices[j]);
-            }
+        }
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            aiFace face = mesh->mFaces[i];
+            for (unsigned int j = 0; j < face.mNumIndices; j++)
+                indices.push_back(face.mIndices[j]);
         }
         newObject->objectMesh = new ObjectMesh(vertices, indices);
         child->AppendChild(newObject);
