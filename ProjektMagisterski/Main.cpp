@@ -33,7 +33,7 @@ int main() {
     }
     glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
    
-   // glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+    //glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
     glfwMakeContextCurrent(window);
     glfwSetWindowPos(window, 0, 0);
     glViewport(0, 0, mode->width/2, mode->height/2);

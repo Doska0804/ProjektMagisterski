@@ -1,17 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
-
-class VarianceComputeShader
+#include "ComputeShader.h"
+class VarianceComputeShader : public ComputeShader
 {
 public:
-	unsigned int ID;
-    unsigned int textureId;
-
     VarianceComputeShader(const char* path);
-
-    void SetActive();
-
-    void setFloatVector(const char* name, const float* vector, int size);
+    ~VarianceComputeShader();
+    void createTextures() override;
+    void deleteTextures() override;
 };
 

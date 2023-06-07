@@ -7,6 +7,12 @@
 #include "Loader.h"
 #include "Helpers.h"
 
+#include "VarianceComputeShader.h"
+#include "VarianceShader.h"
+#include "ExponentialComputeShader.h"
+#include "ExponentialShader.h"
+#include "PCFShader.h"
+
 #include <iostream>
 
 Scene* Scene::scene = nullptr;
@@ -44,9 +50,9 @@ Scene::Scene(int width, int height, GLFWwindow* window)
 	this->height = height;
 	this->width = width;
 	this->window = window;
-	lightProjectionMatrix = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.1f, 40.0f);
+	lightProjectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 40.0f);
 	//lightCameraWorldMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0f, 6.0f));
-	glm::vec3 lightPos = glm::vec3(5.0f, 20.0f, 10.0f);
+	glm::vec3 lightPos = glm::vec3(2.5f, 10.0f, 5.0f);
 	glm::vec3 frontVector = glm::normalize(-lightPos);
 	glm::vec3 rightVector = glm::normalize(glm::cross(frontVector, glm::vec3(0.0f, 1.0f, 0.0f)));
 	lightCameraWorldMatrix = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::cross(rightVector, frontVector)));
@@ -58,17 +64,31 @@ Scene::Scene(int width, int height, GLFWwindow* window)
 	rotCam = RotatingCamera(glm::vec3(0.0f, 3.0f, 6.0f));
 	rotCam.SetPerspectiveMatrix(height, width, 0.1f, 50.0f);
 
-	this->sceneObjects.push_back(LoadScene("./cube.obj"));
+	this->sceneObjects.push_back(LoadScene("./stairs.obj"));
 
 	Scene::scene = this;
 
-	shader = new Shader("baseVertexShader.glsl", "baseFragmentShader.glsl", "baseShadowVertexShader.glsl", "baseShadowFragmentShader.glsl");
-	debugQuad = new Shader("quadVertex.glsl", "quadFragment.glsl", nullptr, nullptr);
-	vShader = new VarianceShader("baseVertexShader.glsl", "varianceFragmentShader.glsl", "baseShadowVertexShader.glsl", "varianceShadowFragmentShader.glsl");
-	vCompute = new VarianceComputeShader("VarianceComputeShader.glsl");
+	debugQuad = new DebugShader("quadVertex.glsl", "quadFragment.glsl");
+
+	if (shaderType == PCF)
+	{
+		shader = new PCFShader("baseVertexShader.glsl", "baseFragmentShader.glsl", "baseShadowVertexShader.glsl", "baseShadowFragmentShader.glsl");
+		cShader = nullptr;
+	}
+	else if (shaderType == VARIANCE)
+	{
+		shader = new VarianceShader("baseVertexShader.glsl", "varianceFragmentShader.glsl", "baseShadowVertexShader.glsl", "varianceShadowFragmentShader.glsl");
+		cShader = new VarianceComputeShader("VarianceComputeShader.glsl");
+	}
+	else if (shaderType == EXPONENTIAL)
+	{
+		shader = new ExponentialShader("baseVertexShader.glsl", "exponentialFragmentShader.glsl", "baseShadowVertexShader.glsl", "exponentialShadowFragmentShader.glsl");
+		cShader = new ExponentialComputeShader("exponentialComputeShader.glsl");
+	}
 
 	Helpers::createGaussianKernel5x5();
 
+	//tester.StartTest();
 }	
 
 void RotateObjects(std::vector<SceneObject*> objects)
@@ -80,72 +100,44 @@ void RotateObjects(std::vector<SceneObject*> objects)
 	}
 }
 void Scene::RenderScene() {
-	//glCullFace(GL_FRONT);
-	//shader->SetActiveShadow();
-	//shader->setMatrix("vpMatrix", &lightVpMatrix);
-	//for (int i = 0; i < sceneObjects.size(); i++)
-	//{
-	//	sceneObjects[i]->Draw();
-	//}
-	// 
-	vShader->SetActiveShadow();
-	vShader->setMatrix("vpMatrix", &lightVpMatrix);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, DrawBuffers);
+
+	shader->setActiveShadow();
+	shader->setMatrix("vpMatrix", &lightVpMatrix);
+	if (shaderType == EXPONENTIAL || shaderType == VARIANCE)
+	{
+		glClearColor(shaderType == EXPONENTIAL ? exp(80.0f) : 1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, DrawBuffers);
+	}
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->Draw();
 	}
-	//glCullFace(GL_BACK);
-	/*shader->SetActive();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, shader->shadowTextureID);
-	glm::vec3 lightPos = glm::vec3(0.0f, 3.0f, 10.0f);
-	//shader->setInt("shadowMap", 0);
-	shader->setVector("lightPos", &lightPos);
-	shader->setMatrix("lightVPMatrix", &lightVpMatrix);
-	if (camMode == FREE_CAMERA)
-	{
-		shader->setMatrix("view", &freeCam.viewMatrix);
-		shader->setMatrix("projection", &freeCam.perspectiveMatrix);
-	}
-	else if (camMode == ROTATING_CAMERA)
-	{
-		rotCam.Update(deltaTime);
-		shader->setMatrix("view", &rotCam.viewMatrix);
-		shader->setMatrix("projection", &rotCam.perspectiveMatrix);
 
-	}
-	
-	
-	for (int i = 0; i < sceneObjects.size(); i++)
-	{
-		sceneObjects[i]->Draw();
-	}
-	*/
+	if (shaderType == EXPONENTIAL)
+		ComputeExponential();
+	else if (shaderType == VARIANCE)
+		ComputeVariance();
 
-	
-	vCompute->SetActive();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, vCompute->textureId);
-	glBindImageTexture(0, vCompute->textureId, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, vShader->shadowTextureID);
-	glBindImageTexture(1, vShader->shadowTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
-	vCompute->setFloatVector("gaussianKernel", Helpers::kernel, 25);
-	glDispatchCompute((unsigned int)(1024/8), (unsigned int)(1024/8), 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-	vShader->SetActive();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, vCompute->textureId);
-	glGenerateMipmap(GL_TEXTURE_2D);
 	glClearColor(0.25f, 0.25f, 0.4f, 1.0f);
+	shader->setActive();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glActiveTexture(GL_TEXTURE0);
+	if (shaderType == PCF)
+	{
+		glBindTexture(GL_TEXTURE_2D, shader->shadowTextureID);
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, cShader->textureID);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
 	glm::vec3 lightPos = glm::vec3(5.0f, 20.0f, 10.0f);
+	shader->setInt("shadowMap", 0);
 	shader->setVector("lightPos", &lightPos);
 	shader->setMatrix("lightVPMatrix", &lightVpMatrix);
 	if (camMode == FREE_CAMERA)
@@ -169,18 +161,8 @@ void Scene::RenderScene() {
 
 	
 	if (debug)
-	{
-		debugQuad->SetActive();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, vCompute->textureId);
-		glClearColor(0.25f, 0.25f, 0.4f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		debugQuad->setInt("depthMap", 0);
-		debugQuad->setFloat("near_plane", 0.1f);
-		debugQuad->setFloat("far_plane", 40.0f);
-		renderQuad();
-	}
-	
+		DrawDebug();
+
 }
 
 void Scene::ResizeWindow(GLFWwindow* window, int width, int height) {
@@ -193,6 +175,7 @@ void Scene::CalculateDelta(double time)
 {
 	deltaTime = time - lastTime;
 	lastTime = time;
+	tester.FrameRendered(deltaTime);
 }
 
 float Scene::GetDelta()
@@ -202,7 +185,7 @@ float Scene::GetDelta()
 
 void Scene::ProcessMouse(double xposIn, double yposIn)
 {
-
+	if (tester.testRunning) return;
 	if (camMode == FREE_CAMERA)
 	{
 		if (firstMouseInput)
@@ -225,6 +208,7 @@ void Scene::ProcessMouse(double xposIn, double yposIn)
 
 void Scene::Input()
 {
+	if (tester.testRunning) return;
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
@@ -250,5 +234,168 @@ void Scene::Input()
 
 		freeCam.ProcessMovement(dir, deltaTime);
 	}
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+	{
+		textureSize = 256;
+		SwapTextures();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+	{
+		textureSize = 512;
+		SwapTextures();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+	{
+		textureSize = 1024;
+		SwapTextures();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+	{
+		textureSize = 2048;
+		SwapTextures();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		shaderType = PCF;
+		SwapShaders();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		shaderType = VARIANCE;
+		SwapShaders();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	{
+		shaderType = EXPONENTIAL;
+		SwapShaders();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		shaderType = PCF;
+		SwapShaders();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		shaderType = VARIANCE;
+		SwapShaders();
+	}
+	else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	{
+		shaderType = EXPONENTIAL;
+		SwapShaders();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	{
+		SwapScenes(0);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	{
+		SwapScenes(1);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+	{
+		SwapScenes(2);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+		debug = !debug;
 }
 
+void Scene::ComputeExponential()
+{
+	cShader->setActive();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cShader->textureID);
+	glBindImageTexture(0, cShader->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shader->shadowTextureID);
+	glBindImageTexture(1, shader->shadowTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+	cShader->setFloatVector("gaussianKernel", Helpers::kernel, 25);
+	glDispatchCompute((unsigned int)(textureSize / 8), (unsigned int)(textureSize / 8), 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void Scene::ComputeVariance()
+{
+	cShader->setActive();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cShader->textureID);
+	glBindImageTexture(0, cShader->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shader->shadowTextureID);
+	glBindImageTexture(1, shader->shadowTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+	cShader->setFloatVector("gaussianKernel", Helpers::kernel, 25);
+	glDispatchCompute((unsigned int)(textureSize / 8), (unsigned int)(textureSize / 8), 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+}
+
+void Scene::DrawDebug()
+{
+	debugQuad->setActive();
+	glActiveTexture(GL_TEXTURE0);
+	if (shaderType == EXPONENTIAL || shaderType == VARIANCE)
+	{
+		glBindTexture(GL_TEXTURE_2D, cShader->textureID);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		
+	}
+	else
+		glBindTexture(GL_TEXTURE_2D, shader->shadowTextureID);
+	
+	glClearColor(0.25f, 0.25f, 0.4f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	debugQuad->setInt("depthMap", 0);
+	debugQuad->setFloat("near_plane", 0.1f);
+	debugQuad->setFloat("far_plane", 40.0f);
+	debugQuad->setInt("isExponential", shaderType == EXPONENTIAL ? 1 : 0);
+	renderQuad();
+}
+
+void Scene::SwapTextures()
+{
+	shader->deleteTextures();
+	shader->createTextures();
+	if (cShader)
+	{
+		cShader->deleteTextures();
+		cShader->createTextures();
+	}
+}
+
+void Scene::SwapShaders()
+{
+	delete shader;
+	delete cShader;
+	if (shaderType == PCF)
+	{
+		shader = new PCFShader("baseVertexShader.glsl", "baseFragmentShader.glsl", "baseShadowVertexShader.glsl", "baseShadowFragmentShader.glsl");
+		cShader = nullptr;
+	}
+	else if (shaderType == VARIANCE)
+	{
+		shader = new VarianceShader("baseVertexShader.glsl", "varianceFragmentShader.glsl", "baseShadowVertexShader.glsl", "varianceShadowFragmentShader.glsl");
+		cShader = new VarianceComputeShader("VarianceComputeShader.glsl");
+	}
+	else if (shaderType == EXPONENTIAL)
+	{
+		shader = new ExponentialShader("baseVertexShader.glsl", "exponentialFragmentShader.glsl", "baseShadowVertexShader.glsl", "exponentialShadowFragmentShader.glsl");
+		cShader = new ExponentialComputeShader("exponentialComputeShader.glsl");
+	}
+}
+
+void Scene::SwapScenes(int sceneID)
+{
+	for (int i = 0; i < sceneObjects.size(); i++)
+		delete sceneObjects[i];
+	sceneObjects.clear();
+
+	std::string scenes[] = { "./stairs.obj", "./columns.obj", "./house2.obj" };
+
+	this->sceneObjects.push_back(LoadScene(scenes[sceneID].c_str()));
+
+}

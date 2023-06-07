@@ -1,5 +1,4 @@
-#include "VarianceComputeShader.h"
-
+#include "ExponentialComputeShader.h"
 
 #include <string>
 #include <fstream>
@@ -10,7 +9,7 @@
 
 #include "Scene.h"
 
-VarianceComputeShader::VarianceComputeShader(const char* path)
+ExponentialComputeShader::ExponentialComputeShader(const char* path)
 {
     std::string computeCode;
     std::ifstream computeShaderFile;
@@ -26,7 +25,7 @@ VarianceComputeShader::VarianceComputeShader(const char* path)
     }
     catch (std::ifstream::failure e)
     {
-        std::cout << "READING FILES ERROR VARIANCE COMPUTE" << std::endl;
+        std::cout << "READING FILES ERROR EXPONENTIAL COMPUTE" << std::endl;
         return;
     }
 
@@ -43,7 +42,7 @@ VarianceComputeShader::VarianceComputeShader(const char* path)
     if (!success)
     {
         glGetShaderInfoLog(shader, 256, NULL, infoLog);
-        std::cout << "COMPUTE VARIANCE COMPILE ERROR:\n" << infoLog << std::endl;
+        std::cout << "COMPUTE EXPONENTIAL COMPILE ERROR:\n" << infoLog << std::endl;
         return;
     };
 
@@ -54,34 +53,33 @@ VarianceComputeShader::VarianceComputeShader(const char* path)
     if (!success)
     {
         glGetShaderInfoLog(shader, 256, NULL, infoLog);
-        std::cout << "COMPUTE VARIANCE LINKING ERROR:\n" << infoLog << std::endl;
+        std::cout << "COMPUTE EXPONENTIAL LINKING ERROR:\n" << infoLog << std::endl;
         return;
     };
 
     createTextures();
+
 }
 
-VarianceComputeShader::~VarianceComputeShader()
+ExponentialComputeShader::~ExponentialComputeShader()
 {
     deleteTextures();
 }
 
-
-void VarianceComputeShader::createTextures()
+void ExponentialComputeShader::createTextures()
 {
     glGenTextures(1, &textureID);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F,
-        Scene::scene->textureSize, Scene::scene->textureSize, 0, GL_RG, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F,
+        Scene::scene->textureSize, Scene::scene->textureSize, 0, GL_RED, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void VarianceComputeShader::deleteTextures()
+void ExponentialComputeShader::deleteTextures()
 {
     glDeleteTextures(1, &textureID);
 }
-

@@ -146,6 +146,7 @@
     <None Include="baseShadowVertexShader.glsl" />
     <None Include="baseVertexShader.glsl" />
     <None Include="exponentialComputeShader.glsl" />
+    <None Include="exponentialFragmentShader.glsl" />
     <None Include="exponentialShadowFragmentShader.glsl" />
     <None Include="packages.config" />
     <None Include="quadFragment.glsl" />
@@ -155,27 +156,41 @@
     <None Include="varianceShadowFragmentShader.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseShader.cpp" />
+    <ClCompile Include="ComputeShader.cpp" />
+    <ClCompile Include="DebugShader.cpp" />
+    <ClCompile Include="ExponentialComputeShader.cpp" />
+    <ClCompile Include="ExponentialShader.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ObjectMesh.cpp" />
+    <ClCompile Include="PCFShader.cpp" />
     <ClCompile Include="RotatingCamera.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="VarianceComputeShader.cpp" />
     <ClCompile Include="VarianceShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseShader.h" />
+    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="DebugShader.h" />
+    <ClInclude Include="ExponentialComputeShader.h" />
+    <ClInclude Include="ExponentialShader.h" />
     <ClInclude Include="FreeCamera.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="ObjectMesh.h" />
+    <ClInclude Include="PCFShader.h" />
     <ClInclude Include="RotatingCamera.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="VarianceComputeShader.h" />
     <ClInclude Include="VarianceShader.h" />
   </ItemGroup>

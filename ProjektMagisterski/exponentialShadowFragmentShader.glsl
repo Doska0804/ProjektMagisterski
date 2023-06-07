@@ -1,8 +1,9 @@
 #version 450 core
 
-out float depthOutput;
+layout(location = 0) out vec4 Output;
 
+int constant = 80;
 void main()
 {             
-	depthOutput = exp(-gl_FragCoord.z * 80);
+	Output = vec4(exp(gl_FragCoord.z * constant), 1.0, 1.0, 1.0);
 }  

@@ -9,6 +9,9 @@ uniform vec3 lightPos;
 
 uniform sampler2D shadowMap;
 
+int constant = 80;
+float epsilon = 0.02;
+
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
     vec3 projCoords = fragPosLightSpace.xyz * 0.5 + 0.5;
@@ -17,16 +20,22 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     if (projCoords.x > 1.0|| projCoords.x < 0|| projCoords.y > 1.0 || projCoords.y < 0)
         return 1;
 
-    vec2 moments = texture(shadowMap, projCoords.xy).rg;
-    if (moments.x > projCoords.z)
-        return 1;
+    float value = exp(-constant * projCoords.z) * texture(shadowMap, projCoords.xy).r;
+    if (value > 1+epsilon)
+    {
+        float mean = clamp(value, 0.0, 1.0);
+        for (int i = -1; i <= 1; i++)
+        {
+            if (i == 0)
+                continue;
+            mean += clamp(exp(-constant * projCoords.z) * texture(shadowMap, projCoords.xy + vec2(texelSize.x * i, 0)).r, 0.0, 1.0);
+            mean += clamp(exp(-constant * projCoords.z) * texture(shadowMap, projCoords.xy + vec2(0, texelSize.y * i)).r, 0.0, 1.0);
+        }
+        mean /= 5;
+        return mean;
+    }
 
-    float variance = max(moments.y - moments.x * moments.x, 0.00001);
-    float compareValue = projCoords.z - moments.x;
-
-    float pMax = variance/(variance+compareValue*compareValue);
-        
-    return clamp(pMax, 0.0, 1.0);
+    return clamp(value, 0.0, 1.0);
 }
 
 void main()

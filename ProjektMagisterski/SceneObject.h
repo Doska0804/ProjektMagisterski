@@ -15,6 +15,7 @@ public:
 	glm::mat4 localMatrix = glm::mat4(1.0f);
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 public:
+	~SceneObject();
 	void Draw();
 	void AppendChild(SceneObject* child);
 };

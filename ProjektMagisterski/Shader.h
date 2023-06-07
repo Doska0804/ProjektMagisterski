@@ -8,19 +8,14 @@ class Shader
     
 public:
     unsigned int ID;
-    unsigned int ShadowShaderID;
-    unsigned int shadowTextureID;
-    unsigned int shadowFBOID;
     unsigned int ActiveShaderID;
 public:
-    Shader(const char* vertexPath, const char* fragmentPath, const char* shadowVertexPath, const char* shadowFragmentPath);
-    ~Shader();
-
+    virtual ~Shader();
     void loadShader(const char* vertexPath, const char* fragmentPath, unsigned int* id);
     void buildShader(const char* vertex, const char* fragment, unsigned int* id);
+    virtual void setActive() = 0;
 
-    void SetActive();
-    void SetActiveShadow();
+   
 
     void setBool(const char* name, bool value);
     void setInt(const char* name, int value);

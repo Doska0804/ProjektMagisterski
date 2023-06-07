@@ -13,6 +13,13 @@ ObjectMesh::ObjectMesh(std::vector<Vertex> vertices, std::vector<unsigned int> i
 	Initialize();
 }
 
+ObjectMesh::~ObjectMesh()
+{
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+}
+
 void ObjectMesh::Initialize()
 {
     glGenVertexArrays(1, &VAO);
@@ -41,7 +48,7 @@ void ObjectMesh::Initialize()
 void ObjectMesh::Draw(glm::mat4* worldMatrix)
 {
     glBindVertexArray(VAO);
-    Scene::scene->vShader->setMatrix("model", worldMatrix);
+    Scene::scene->shader->setMatrix("model", worldMatrix);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
