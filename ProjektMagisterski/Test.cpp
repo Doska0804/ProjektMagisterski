@@ -9,6 +9,7 @@ void Test::endTest()
 	glfwSwapInterval(1);
 	testRunning = false;
 	outputFile.close();
+	glfwSetWindowShouldClose(Scene::scene->window, true);
 }
 
 void Test::writeData()
@@ -43,9 +44,9 @@ void Test::StartTest()
 		Scene::scene->textureSize = 256;
 		Scene::scene->shaderType = Scene::PCF;
 		Scene::scene->camMode = Scene::ROTATING_CAMERA;
-
+		frameTimes.reserve(300000);
 		Scene::scene->SwapShaders();
-		ignoreFrame = true;
+		ignoreFrames = 800000;
 		outputFile << "Test, resolution: " << Scene::scene->width << "x" << Scene::scene->height << std::endl;
 	}
 }
@@ -53,9 +54,11 @@ void Test::StartTest()
 void Test::FrameRendered(float deltaTime)
 {
 	if (testRunning == false) return;
-	if (ignoreFrame == true)
+	if (ignoreFrames > 0)
 	{
-		ignoreFrame = false;
+		ignoreFrames--;
+		if (ignoreFrames == 0)
+			Scene::scene->rotCam.ResetPosition();
 		return;
 	}
 
@@ -73,8 +76,7 @@ void Test::FrameRendered(float deltaTime)
 		currentTestTime = 0;
 		maxFrameTime = 0;
 		minFrameTime = std::numeric_limits<float>::max();
-		ignoreFrame = true;
-
+		ignoreFrames = 1;
 		if (Scene::scene->textureSize == 2048)
 		{
 			if (currentScene >= SCENE_COUNT - 1)
@@ -93,6 +95,7 @@ void Test::FrameRendered(float deltaTime)
 			}
 			else
 			{
+				outputFile << "\nSceneSwap\n" << std::endl;
 				currentScene++;
 				Scene::scene->textureSize = 256;
 				Scene::scene->SwapTextures();
@@ -104,7 +107,7 @@ void Test::FrameRendered(float deltaTime)
 			Scene::scene->textureSize *= 2;
 			Scene::scene->SwapTextures();
 		}
-
+		
 	}
 
 

@@ -16,7 +16,7 @@ class Test
 	
 	int currentScene = 0;
 
-	bool ignoreFrame = true;
+	int ignoreFrames = 30;
 
 	std::ofstream outputFile;
 

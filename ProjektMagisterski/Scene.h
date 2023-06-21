@@ -28,7 +28,7 @@ class Scene
 	glm::mat4 lightCameraWorldMatrix = glm::mat4(1.0);
 
 	FreeCamera freeCam;
-	RotatingCamera rotCam;
+	
 
 	double deltaTime = 0;
 	double lastTime = 0;
@@ -39,7 +39,7 @@ class Scene
 
 	Test tester;
 
-	GLFWwindow* window;
+	
 public:
 	enum CameraMode {
 		FREE_CAMERA,
@@ -57,6 +57,8 @@ public:
 
 	BaseShader* shader;
 	ComputeShader* cShader;
+
+	RotatingCamera rotCam;
 	
 	int height;
 	int width;
@@ -64,7 +66,8 @@ public:
 	ShaderType shaderType = EXPONENTIAL;
 
 	bool debug = false;
-
+	bool renderShadow = false;
+	GLFWwindow* window;
 	int textureSize = 256;
 
 public:

@@ -49,6 +49,12 @@ void ObjectMesh::Draw(glm::mat4* worldMatrix)
 {
     glBindVertexArray(VAO);
     Scene::scene->shader->setMatrix("model", worldMatrix);
+   
+    if (!Scene::scene->renderShadow)
+    {
+        glm::mat4 trans = glm::transpose(glm::inverse(*worldMatrix));
+        Scene::scene->shader->setMatrix("tiModel", &trans);
+    }
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

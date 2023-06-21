@@ -6,6 +6,7 @@
 
 RotatingCamera::RotatingCamera(glm::vec3 position) {
     Position = position;
+    StartingPosition = position;
 }
 
 void RotatingCamera::Update(float delta) {
@@ -24,4 +25,9 @@ void RotatingCamera::calculateViewMatrix() {
     glm::vec3 rightVector = glm::normalize(glm::cross(frontVector, glm::vec3(0.0f, 1.0f, 0.0f)));
     
     viewMatrix = glm::lookAt(Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::cross(rightVector, frontVector)));
+}
+
+void RotatingCamera::ResetPosition()
+{
+    Position = StartingPosition;
 }

@@ -100,7 +100,7 @@ void RotateObjects(std::vector<SceneObject*> objects)
 	}
 }
 void Scene::RenderScene() {
-
+	renderShadow = true;
 	shader->setActiveShadow();
 	shader->setMatrix("vpMatrix", &lightVpMatrix);
 	if (shaderType == EXPONENTIAL || shaderType == VARIANCE)
@@ -120,7 +120,7 @@ void Scene::RenderScene() {
 	else if (shaderType == VARIANCE)
 		ComputeVariance();
 
-
+	renderShadow = false;
 	glClearColor(0.25f, 0.25f, 0.4f, 1.0f);
 	shader->setActive();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

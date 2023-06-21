@@ -7,6 +7,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightVPMatrix;
+uniform mat4 tiModel;
 
 out vec3 fragmentPos;
 out vec3 normal;
@@ -15,7 +16,7 @@ out vec4 fragmentPosLight;
 void main()
 {
     fragmentPos = vec3(model * vec4(inPos, 1.0));
-    normal = mat3(transpose(inverse(model))) * inNormal;
+    normal = mat3(tiModel) * inNormal;
     fragmentPosLight = lightVPMatrix * vec4(fragmentPos, 1.0);
     gl_Position = projection * view * model * vec4(inPos, 1.0);
 }       
